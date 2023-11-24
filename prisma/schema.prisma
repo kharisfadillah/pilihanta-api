@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model mst_dpt_sulsel {
+  nu_id_dpt       BigInt    @id
+  vc_nik          String    @db.Text
+  vc_nkk          String?   @db.Text
+  vc_nama         String    @db.Text
+  vc_alamat       String?   @db.Text
+  vc_tempat_lahir String?   @db.Text
+  dt_tgl_lahir    DateTime? @db.Date
+  vc_jenis_kel    String?   @db.VarChar(1)
+  vc_status_kawin String?   @db.VarChar(1)
+  vc_id_provinsi  String?   @db.Text
+  vc_id_kabupaten String?   @db.Text
+  vc_id_kecamatan String?   @db.Text
+  vc_id_desa      String?   @db.Text
+  vc_id_tps       BigInt?
+  vc_no_hp        String?   @db.VarChar(20)
+  vc_verify       String?   @db.VarChar(1)
+  vc_recruit_by   String?   @db.Text
+  nu_id_reff      String?   @db.VarChar(20)
+  vc_status       String?   @db.VarChar(1)
+}
+
+model new_mst_desa {
+  vc_id_desa        BigInt             @id
+  vc_nama_desa      String?            @db.Text
+  vc_id_kecamatan   BigInt?
+  vc_status         String?            @db.Text
+  jml_tps           BigInt?
+  dpt_l             BigInt?
+  dpt_p             BigInt?
+  vc_id_nik_desa    String?            @db.VarChar(4)
+  vc_lat            String?            @db.VarChar(255)
+  vc_long           String?            @db.VarChar(255)
+  new_mst_kecamatan new_mst_kecamatan? @relation(fields: [vc_id_kecamatan], references: [vc_id_kecamatan], onDelete: Restrict, onUpdate: Restrict, map: "FK_new_mst_desa_new_mst_kecamatan")
+  new_mst_tps       new_mst_tps[]
+
+  @@index([vc_id_kecamatan], map: "FK_new_mst_desa_new_mst_kecamatan")
+}
+
+model new_mst_kabupaten {
+  vc_id_kabupaten   BigInt              @id
+  vc_nama_kabupaten String?             @db.Text
+  vc_id_provinsi    BigInt
+  vc_status         String?             @db.Text
+  vc_id_nik_kab     String?             @db.VarChar(2)
+  vc_tot_kec        String?             @db.VarChar(10)
+  vc_tot_des        String?             @db.VarChar(10)
+  vc_tot_tps        String?             @db.VarChar(10)
+  vc_id_zona        String?             @db.VarChar(50)
+  nu_dpt_l          Int?
+  nu_dpt_p          Int?
+  vc_korcam         String?             @db.VarChar(10)
+  vc_dtdc           String?             @db.VarChar(10)
+  new_mst_provinsi  new_mst_provinsi    @relation(fields: [vc_id_provinsi], references: [vc_id_provinsi], onUpdate: Restrict, map: "FK_new_mst_kabupaten_new_mst_provinsi")
+  new_mst_kecamatan new_mst_kecamatan[]
+
+  @@index([vc_id_provinsi], map: "FK_new_mst_kabupaten_new_mst_provinsi")
+}
+
+model new_mst_kecamatan {
+  vc_id_kecamatan   BigInt             @id
+  vc_nama_kecamatan String?            @db.Text
+  vc_id_kabupaten   BigInt?
+  vc_status         String?            @db.Text
+  vc_id_nik_kec     String?            @db.Char(2)
+  vc_id_ops         String?            @db.VarChar(10)
+  vc_id_pec_kab     String?            @db.VarChar(10)
+  vc_tot_des        String?            @db.VarChar(10)
+  vc_tot_tps        String?            @db.VarChar(10)
+  vc_lat            String?            @db.VarChar(255)
+  vc_long           String?            @db.VarChar(255)
+  new_mst_desa      new_mst_desa[]
+  new_mst_kabupaten new_mst_kabupaten? @relation(fields: [vc_id_kabupaten], references: [vc_id_kabupaten], onDelete: Restrict, onUpdate: Restrict, map: "FK_new_mst_kecamatan_new_mst_kabupaten")
+
+  @@index([vc_id_kabupaten], map: "FK_new_mst_kecamatan_new_mst_kabupaten")
+}
+
+model new_mst_provinsi {
+  vc_id_provinsi    BigInt              @id
+  vc_nama_provinsi  String?             @db.Text
+  vc_status         String?             @db.Text
+  vc_id_nik_prov    String?             @db.VarChar(2)
+  new_mst_kabupaten new_mst_kabupaten[]
+}
+
+model new_mst_tps {
+  nu_id_tps     BigInt        @id
+  vc_nama_tps   String?       @db.Text
+  vc_id_desa    BigInt?
+  vc_status     String?       @db.Text
+  dpt_l         BigInt?
+  dpt_p         BigInt?
+  created_at    DateTime?     @db.DateTime(0)
+  updated_at    DateTime?     @db.DateTime(0)
+  vc_nik_id_tps BigInt?
+  new_mst_desa  new_mst_desa? @relation(fields: [vc_id_desa], references: [vc_id_desa], onDelete: Restrict, onUpdate: Restrict, map: "FK_new_mst_tps_new_mst_desa")
+
+  @@index([vc_id_desa], map: "FK_new_mst_tps_new_mst_desa")
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model users {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String    @db.VarChar(255)
+  role              String?   @db.VarChar(255)
+  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
