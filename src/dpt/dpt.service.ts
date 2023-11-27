@@ -6,7 +6,7 @@ import { serializeBigInt } from 'src/util/serialization.util';
 export class DptService {
     constructor(private prisma: PrismaService) { }
     async getDpts() {
-        const dpts = await this.prisma.new_mst_desa.findFirst();
+        const dpts = await this.prisma.mst_desa.findFirst();
         console.log(dpts);
 
         const serializedDpts = serializeBigInt(dpts);
