@@ -4,6 +4,6 @@ import { DptService } from './dpt.service';
 
 @Module({
   controllers: [DptController],
-  providers: [DptService]
+  providers: [DptService],
 })
-export class DptModule { }
+export class DptModule {}

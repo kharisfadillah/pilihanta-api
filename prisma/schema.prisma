@@ -23,65 +23,6 @@ model migrations {
   batch     Int
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model mst_dpt_sulsel {
-  nu_id_dpt       BigInt
-  vc_nik          String    @db.Text
-  vc_nkk          String?   @db.Text
-  vc_nama         String    @db.Text
-  vc_alamat       String?   @db.Text
-  vc_tempat_lahir String?   @db.Text
-  dt_tgl_lahir    DateTime? @db.Date
-  vc_jenis_kel    String?   @db.VarChar(1)
-  vc_status_kawin String?   @db.VarChar(1)
-  vc_id_provinsi  String?   @db.Text
-  vc_id_kabupaten String?   @db.Text
-  vc_id_kecamatan String?   @db.Text
-  vc_id_desa      String?   @db.Text
-  vc_id_tps       BigInt?
-  vc_no_hp        String?   @db.VarChar(20)
-  vc_verify       String?   @db.VarChar(1)
-  vc_recruit_by   String?   @db.Text
-  nu_id_reff      String?   @db.VarChar(20)
-  vc_status       String?   @db.VarChar(1)
-
-  @@ignore
-}
-
-model password_reset_tokens {
-  email      String    @id @db.VarChar(255)
-  token      String    @db.VarChar(255)
-  created_at DateTime? @db.Timestamp(0)
-}
-
-model personal_access_tokens {
-  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  tokenable_type String    @db.VarChar(255)
-  tokenable_id   BigInt    @db.UnsignedBigInt
-  name           String    @db.VarChar(255)
-  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
-  abilities      String?   @db.Text
-  last_used_at   DateTime? @db.Timestamp(0)
-  expires_at     DateTime? @db.Timestamp(0)
-  created_at     DateTime? @db.Timestamp(0)
-  updated_at     DateTime? @db.Timestamp(0)
-
-  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
-}
-
-model users {
-  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  username          String    @db.VarChar(200)
-  name              String    @db.VarChar(255)
-  role              String?   @db.VarChar(255)
-  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
-  email_verified_at DateTime? @db.Timestamp(0)
-  password          String    @db.VarChar(255)
-  remember_token    String?   @db.VarChar(100)
-  created_at        DateTime? @db.Timestamp(0)
-  updated_at        DateTime? @db.Timestamp(0)
-}
-
 model mst_desa {
   vc_id_desa      String  @default("") @db.VarChar(50)
   vc_nama_desa    String? @db.Text
@@ -96,7 +37,6 @@ model mst_desa {
   nu_id           Int     @id @default(autoincrement())
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model mst_dpt {
   nu_id_dpt       BigInt    @id @default(autoincrement())
   vc_nik          String    @db.Text
@@ -117,8 +57,28 @@ model mst_dpt {
   vc_recruit_by   String?   @db.Text
   nu_id_reff      String?   @db.VarChar(20)
   vc_status       String?   @db.VarChar(1)
+}
 
-  @@ignore
+model mst_dpt_sulsel {
+  nu_id_dpt       BigInt    @id @default(autoincrement())
+  vc_nik          String    @db.Text
+  vc_nkk          String?   @db.Text
+  vc_nama         String    @db.Text
+  vc_alamat       String?   @db.Text
+  vc_tempat_lahir String?   @db.Text
+  dt_tgl_lahir    DateTime? @db.Date
+  vc_jenis_kel    String?   @db.VarChar(1)
+  vc_status_kawin String?   @db.VarChar(1)
+  vc_id_provinsi  String?   @db.Text
+  vc_id_kabupaten String?   @db.Text
+  vc_id_kecamatan String?   @db.Text
+  vc_id_desa      String?   @db.Text
+  vc_id_tps       BigInt?
+  vc_no_hp        String?   @db.VarChar(20)
+  vc_verify       String?   @db.VarChar(1)
+  vc_recruit_by   String?   @db.Text
+  nu_id_reff      String?   @db.VarChar(20)
+  vc_status       String?   @db.VarChar(1)
 }
 
 model mst_kab {
@@ -174,6 +134,27 @@ model mst_tps {
   vc_rt         BigInt?
 }
 
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
 model relawans {
   nu_id            Int       @id @default(autoincrement())
   vc_nik           String?   @db.VarChar(20)
@@ -197,6 +178,19 @@ model relawans {
   vc_no_hp         String?   @db.VarChar(50)
   created_by       String?   @db.VarChar(50)
   vc_url           String?   @db.VarChar(255)
+}
+
+model users {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  username          String    @db.VarChar(200)
+  name              String    @db.VarChar(255)
+  role              String?   @db.VarChar(255)
+  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
 }
 
 model voters {

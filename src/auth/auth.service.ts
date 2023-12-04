@@ -1,10 +1,15 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import * as argon from 'argon2';
-import { Prisma } from '@prisma/client';
-import { LoginDto } from './dto';
+import {
+  ForbiddenException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+import { ChangePasswordDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
+import { UserResponseDto } from './dto/user-response.dto';
+import { users } from '@prisma/client';
 
 @Injectable({})
 export class AuthService {
@@ -12,10 +17,9 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
-  ) { }
+  ) {}
 
-
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<UserResponseDto> {
     const user = await this.prisma.users.findFirst({
       where: {
         username: dto.username,
@@ -24,19 +28,83 @@ export class AuthService {
 
     if (!user) throw new ForbiddenException('User not registered');
 
-    const pwMatches = await argon.verify(user.password, dto.password);
+    const pwMatches = await bcrypt.compare(dto.password, user.password);
 
     if (!pwMatches) throw new ForbiddenException('Credential incorrect');
 
-    // delete user.hash;
+    const user_ = {
+      id: user.id.toString(),
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    };
 
-    return this.signToken(user.id, user.username);
+    return {
+      user: user_,
+      token: await this.signToken(user.id.toString(), user.username),
+    };
   }
 
-  async signToken(
-    userId: bigint,
-    email: string,
-  ): Promise<{ access_token: string }> {
+  async me(user: users): Promise<UserResponseDto> {
+    const user_ = {
+      id: user.id.toString(),
+      username: user.username,
+      name: user.name,
+      role: user.role,
+    };
+
+    return {
+      user: user_,
+      token: null,
+    };
+  }
+
+  async changePassword(
+    user: users,
+    dto: ChangePasswordDto,
+  ): Promise<UserResponseDto> {
+    const userId = user.id;
+    const existingUser = await this.prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) throw new ForbiddenException('Pengguna tidak ditemukan');
+
+    const pwMatches = await bcrypt.compare(
+      dto.oldPassword,
+      existingUser.password,
+    );
+    if (!pwMatches) throw new ForbiddenException('Kata sandi lama salah');
+
+    if (dto.oldPassword == dto.newPassword)
+      throw new ForbiddenException(
+        'Kata sandi baru tidak boleh sama dengan kata sandi lama',
+      );
+
+    if (dto.newPassword != dto.confirmPassword)
+      throw new ForbiddenException('Kata sandi konfirmasi salah');
+
+    const updatedUser = await this.prisma.users.update({
+      where: { id: userId },
+      data: {
+        password: await bcrypt.hash(dto.newPassword, 10),
+      },
+    });
+
+    const user_ = {
+      id: updatedUser.id.toString(),
+      username: updatedUser.username,
+      name: updatedUser.name,
+      role: updatedUser.role,
+    };
+
+    return {
+      user: user_,
+      token: null,
+    };
+  }
+
+  async signToken(userId: string, email: string): Promise<string> {
     const payload = {
       sub: userId,
       email,
@@ -49,8 +117,6 @@ export class AuthService {
       secret: secret,
     });
 
-    return {
-      access_token: token,
-    };
+    return token;
   }
 }
