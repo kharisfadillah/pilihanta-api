@@ -19,7 +19,7 @@ export class ChangePasswordDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(6, {
-    message: 'Kata sandi minimal 6x karakter',
+    message: 'Kata sandi minimal 6 karakter',
   })
   confirmPassword: string;
 }

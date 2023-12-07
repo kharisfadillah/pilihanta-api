@@ -4,13 +4,13 @@ import { serializeBigInt } from 'src/util/serialization.util';
 
 @Injectable()
 export class DptService {
-  constructor(private prisma: PrismaService) { }
-  async getDpts(page: number, query: string) {
+  constructor(private prisma: PrismaService) {}
+  async getDpts(cursor: string, query: string) {
     const pageSize = 20;
     // const skip = (page - 1) * pageSize;
 
     // // Buat objek filter berdasarkan parameter yang diterima
-    const filterObj = query ? { vc_nama: { startsWith: query } } : {};
+    const filterObj = query ? { vc_nama: { contains: query } } : {};
 
     // const [data, total] = await Promise.all([
     //   this.prisma.mst_dpt.findMany({
@@ -40,24 +40,81 @@ export class DptService {
     //   },
     // };
 
-    // const dpts = await this.prisma.mst_dpt.findMany({
+    // if ()
+
+    // const condition = {
     //   where: filterObj,
     //   take: pageSize,
+    //   skip: 0,
+    //   cursor: undefined,
+    //   orderBy: {
+    //     nu_id_dpt: 1,
+    //   },
+    // };
+
+    // let cursor_ = undefined;
+
+    // if (cursor) {
+    //   cursor_ = {
+    //     nu_id_dpt: parseInt(cursor) ?? undefined,
+    //   };
+    //   // condition.cursor = {
+    //   //   nu_id_dpt: parseInt(cursor),
+    //   // };
+    //   // condition.skip = 1;
+    // }
+
+    const [dpts, total] = await Promise.all([
+      this.prisma.mst_dpt.findMany({
+        where: filterObj,
+        take: pageSize,
+        skip: cursor ? 1 : 0,
+        cursor: cursor
+          ? {
+              nu_id_dpt: parseInt(cursor) ?? undefined,
+            }
+          : undefined,
+        orderBy: {
+          nu_id_dpt: 'asc',
+        },
+      }),
+      this.prisma.mst_dpt.count({
+        where: filterObj,
+      }),
+    ]);
+
+    // const [data, total] = await Promise.all([
+    //   this.prisma.mst_dpt.findMany({
+    //     where: filterObj,
+    //     skip,
+    //     take: pageSize,
+    //   }),
+    //   this.prisma.mst_dpt.count({
+    //     where: filterObj,
+    //   }),
+    // ]);
+
+    // const dpts = await this.prisma.mst_dpt.findMany({
+    //   take: pageSize,
+    //   skip: 1,
+    //   cursor: {
+    //     nu_id_dpt: myCursor,
+    //   },
+    //   where: filterObj,
+    //   orderBy: {
+    //     id: 'asc',
+    //   },
     // });
-    // // console.log(dpts);
 
-    // const serializedDpts = serializeBigInt(dpts);
-
-    // return serializedDpts;
-
-    const dpts = await this.prisma.$queryRaw`
-  SELECT * FROM mst_dpt
-  WHERE vc_nama LIKE ${query ? '%' + query + '%' : '%'}
-  LIMIT ${pageSize};
-`;
+    // const totalPages = Math.ceil(total / pageSize);
 
     const serializedDpts = serializeBigInt(dpts);
 
-    return serializedDpts;
+    return {
+      data: serializedDpts,
+      meta: {
+        total,
+      },
+    };
   }
 }

@@ -1,14 +1,20 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { DptService } from './dpt.service';
+import { JwtGuard } from 'src/auth/guard';
 
 @Controller('dpt')
 export class DptController {
   constructor(private dptService: DptService) {}
 
   @Get()
-  getDpts(@Query('page') page: string, @Query('query') query: string) {
-    const pageNumber = parseInt(page);
-    return this.dptService.getDpts(isNaN(pageNumber) ? 1 : pageNumber, query);
+  @UseGuards(JwtGuard)
+  getDpts(@Query('cursor') cursor: string, @Query('query') query: string) {
+    if (cursor) {
+      console.log('ada');
+    } else {
+      console.log('tidak ada');
+    }
+    return this.dptService.getDpts(cursor, query);
   }
 
   //   @Get(':id')
