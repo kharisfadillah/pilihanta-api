@@ -51,16 +51,20 @@ model mst_dpt {
   vc_id_kabupaten String?   @db.Text
   vc_id_kecamatan String?   @db.Text
   vc_id_desa      String?   @db.Text
+  vc_rt           String?   @db.VarChar(3)
   vc_id_tps       BigInt?
   vc_no_hp        String?   @db.VarChar(20)
   vc_verify       String?   @db.VarChar(1)
   vc_recruit_by   String?   @db.Text
   nu_id_reff      String?   @db.VarChar(20)
   vc_status       String?   @db.VarChar(1)
+  updated_at      DateTime? @db.DateTime(0)
+  created_at      DateTime? @db.DateTime(0)
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model mst_dpt_sulsel {
-  nu_id_dpt       BigInt    @id @default(autoincrement())
+  nu_id_dpt       BigInt
   vc_nik          String    @db.Text
   vc_nkk          String?   @db.Text
   vc_nama         String    @db.Text
@@ -79,6 +83,19 @@ model mst_dpt_sulsel {
   vc_recruit_by   String?   @db.Text
   nu_id_reff      String?   @db.VarChar(20)
   vc_status       String?   @db.VarChar(1)
+
+  @@ignore
+}
+
+model mst_group {
+  nu_id    Int     @id @default(autoincrement())
+  vc_group String? @db.VarChar(50)
+}
+
+model mst_group_relawan {
+  nu_id         Int     @id @default(autoincrement())
+  vc_kode_group String? @db.VarChar(50)
+  vc_nama_group String? @db.VarChar(50)
 }
 
 model mst_kab {
@@ -113,11 +130,18 @@ model mst_kec {
   vc_long           String? @db.VarChar(255)
 }
 
+model mst_posisi {
+  nu_id     Int     @id @default(autoincrement())
+  vc_posisi String? @db.VarChar(50)
+  vc_kode   String? @db.VarChar(50)
+}
+
 model mst_prov {
-  nu_id          BigInt  @id @default(autoincrement())
-  vc_status      String? @db.VarChar(50)
-  vc_nama_prov   String? @db.VarChar(50)
-  vc_id_nik_prov String? @db.VarChar(2)
+  nu_id              BigInt  @id @default(autoincrement())
+  vc_status          String? @db.VarChar(50)
+  vc_nama_provinsi   String? @db.VarChar(50)
+  vc_id_nik_provinsi String? @db.VarChar(2)
+  vc_id_provinsi     String? @db.VarChar(50)
 }
 
 model mst_tps {
@@ -178,19 +202,24 @@ model relawans {
   vc_no_hp         String?   @db.VarChar(50)
   created_by       String?   @db.VarChar(50)
   vc_url           String?   @db.VarChar(255)
+  vc_no_rek        String?   @db.VarChar(100)
+  vc_bank          String?   @db.VarChar(255)
+  vc_atas_nama     String?   @db.VarChar(255)
+  vc_jenis_relawan String?   @db.VarChar(100)
 }
 
 model users {
   id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  username          String    @db.VarChar(200)
+  username          String    @db.VarChar(255)
   name              String    @db.VarChar(255)
   role              String?   @db.VarChar(255)
-  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
+  email             String?   @unique(map: "users_email_unique") @db.VarChar(255)
   email_verified_at DateTime? @db.Timestamp(0)
   password          String    @db.VarChar(255)
   remember_token    String?   @db.VarChar(100)
   created_at        DateTime? @db.Timestamp(0)
   updated_at        DateTime? @db.Timestamp(0)
+  created_by        String?   @db.VarChar(50)
 }
 
 model voters {
@@ -203,6 +232,8 @@ model voters {
   created_at    DateTime? @db.DateTime(0)
   updated_at    DateTime? @db.DateTime(0)
   vc_url        String?   @db.VarChar(50)
+  vc_lat        String?   @db.VarChar(100)
+  vc_long       String?   @db.VarChar(100)
 
   @@index([nu_id_dpt], map: "vc_id_dpt")
   @@index([vc_id_relawan], map: "vc_id_relawan")

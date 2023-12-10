@@ -5,68 +5,45 @@ import { serializeBigInt } from 'src/util/serialization.util';
 @Injectable()
 export class DptService {
   constructor(private prisma: PrismaService) {}
-  async getDpts(cursor: string, query: string) {
+  async getDpts(desa: string, rt: string, query: string, cursor: string) {
     const pageSize = 20;
-    // const skip = (page - 1) * pageSize;
 
-    // // Buat objek filter berdasarkan parameter yang diterima
-    const filterObj = query ? { vc_nama: { contains: query } } : {};
+    // Buat objek untuk menyimpan kondisi query
+    const whereCondition: any = {
+      AND: [
+        {
+          vc_id_desa: desa,
+        },
+      ],
+    };
 
-    // const [data, total] = await Promise.all([
-    //   this.prisma.mst_dpt.findMany({
-    //     where: filterObj,
-    //     skip,
-    //     take: pageSize,
-    //   }),
-    //   this.prisma.mst_dpt.count({
-    //     where: filterObj,
-    //   }),
-    // ]);
+    // Tambahkan vc_rt jika rt telah diberikan
+    if (rt) {
+      whereCondition.AND.push({
+        vc_rt: rt,
+      });
+    }
 
-    // const totalPages = Math.ceil(total / pageSize);
+    // Tambahkan kondisi OR hanya jika query telah diberikan
+    if (query) {
+      const orCondition = {
+        OR: [{ vc_nik: { contains: query } }, { vc_nama: { contains: query } }],
+      };
+      whereCondition.AND.push(orCondition);
+    }
 
-    // return {
-    //   data: data.map((element: any) => {
-    //     return serializeBigInt(element);
-    //   }),
-    //   meta: {
-    //     // current_page: page,
-    //     // from: skip + 1,
-    //     // to: skip + pageSize,
-    //     // per_page: pageSize,
-    //     total,
-    //     prev_page: page > 1 ? page - 1 : null,
-    //     next_page: page < totalPages ? page + 1 : null,
-    //   },
-    // };
+    //cek variabel whereCondition
+    console.log(
+      whereCondition,
+      whereCondition.AND[2],
+      whereCondition.AND[2].OR[0],
+      whereCondition.AND[2].OR[1],
+    );
 
-    // if ()
-
-    // const condition = {
-    //   where: filterObj,
-    //   take: pageSize,
-    //   skip: 0,
-    //   cursor: undefined,
-    //   orderBy: {
-    //     nu_id_dpt: 1,
-    //   },
-    // };
-
-    // let cursor_ = undefined;
-
-    // if (cursor) {
-    //   cursor_ = {
-    //     nu_id_dpt: parseInt(cursor) ?? undefined,
-    //   };
-    //   // condition.cursor = {
-    //   //   nu_id_dpt: parseInt(cursor),
-    //   // };
-    //   // condition.skip = 1;
-    // }
-
+    // query prisma untuk menampilkan data dan total
     const [dpts, total] = await Promise.all([
       this.prisma.mst_dpt.findMany({
-        where: filterObj,
+        where: whereCondition,
         take: pageSize,
         skip: cursor ? 1 : 0,
         cursor: cursor
@@ -79,35 +56,11 @@ export class DptService {
         },
       }),
       this.prisma.mst_dpt.count({
-        where: filterObj,
+        where: whereCondition,
       }),
     ]);
 
-    // const [data, total] = await Promise.all([
-    //   this.prisma.mst_dpt.findMany({
-    //     where: filterObj,
-    //     skip,
-    //     take: pageSize,
-    //   }),
-    //   this.prisma.mst_dpt.count({
-    //     where: filterObj,
-    //   }),
-    // ]);
-
-    // const dpts = await this.prisma.mst_dpt.findMany({
-    //   take: pageSize,
-    //   skip: 1,
-    //   cursor: {
-    //     nu_id_dpt: myCursor,
-    //   },
-    //   where: filterObj,
-    //   orderBy: {
-    //     id: 'asc',
-    //   },
-    // });
-
-    // const totalPages = Math.ceil(total / pageSize);
-
+    // hasil query perlu diserialize agar tidak error
     const serializedDpts = serializeBigInt(dpts);
 
     return {

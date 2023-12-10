@@ -8,13 +8,13 @@ export class DptController {
 
   @Get()
   @UseGuards(JwtGuard)
-  getDpts(@Query('cursor') cursor: string, @Query('query') query: string) {
-    if (cursor) {
-      console.log('ada');
-    } else {
-      console.log('tidak ada');
-    }
-    return this.dptService.getDpts(cursor, query);
+  getDpts(
+    @Query('desa') desa: string,
+    @Query('rt') rt: string,
+    @Query('query') query: string,
+    @Query('cursor') cursor: string,
+  ) {
+    return this.dptService.getDpts(desa, rt, query, cursor);
   }
 
   //   @Get(':id')
