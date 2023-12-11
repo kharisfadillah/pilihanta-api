@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { serializeBigInt } from 'src/util/serialization.util';
 import { users } from '@prisma/client';
-import { CreateRelawanDto } from './dto/create-relawan.dto';
+import { CreateVoterDto } from './dto/create-voter.dto';
 
 @Injectable()
 export class VoterService {
@@ -31,8 +31,8 @@ export class VoterService {
     console.log(whereCondition, whereCondition.AND[0], whereCondition.AND[1]);
 
     // query prisma untuk menampilkan data dan total
-    const [relawans, total] = await Promise.all([
-      this.prisma.relawans.findMany({
+    const [voters, total] = await Promise.all([
+      this.prisma.voters.findMany({
         where: whereCondition,
         take: pageSize,
         skip: cursor ? 1 : 0,
@@ -45,67 +45,57 @@ export class VoterService {
           nu_id: 'asc',
         },
       }),
-      this.prisma.relawans.count({
+      this.prisma.voters.count({
         where: {
-          created_by: user.id.toString(),
+          vc_id_relawan: user.id.toString(),
         },
       }),
     ]);
 
     // hasil query perlu diserialize agar tidak error
-    const serializedDpts = serializeBigInt(relawans);
+    const serializedVoters = serializeBigInt(voters);
 
     return {
-      data: serializedDpts,
+      data: serializedVoters,
       meta: {
         total,
       },
     };
   }
 
-  async createRelawan(user: users, dto: CreateRelawanDto) {
+  async createVoterByDpt(user: users, dto: CreateVoterDto) {
     const now = new Date();
 
-    const relawan = await this.prisma.relawans.create({
+    const checkVoter = await this.prisma.voters.findFirst({
+      where: {
+        nu_id_dpt: Number(dto.idDpt),
+      },
+    });
+
+    if (checkVoter) {
+      
+    }
+
+    const dpt = await this.prisma.mst_dpt.findUnique({
+      where: {
+        nu_id_dpt: Number(dto.idDpt),
+      },
+    });
+
+    const voter = await this.prisma.voters.create({
       data: {
-        vc_nik: dto.nik,
-        vc_nama: dto.nama,
-        vc_alamat: dto.alamat,
+        nu_id_dpt: dpt.nu_id_dpt,
+        vc_nik: dpt.vc_nik,
         vc_no_hp: dto.noHP,
-        vc_no_rek: dto.noRekening,
-        vc_bank: dto.bank,
-        vc_atas_nama: dto.atasNama,
-        vc_jenis_relawan: dto.jenisRelawan,
-        created_by: user.id.toString(),
+        vc_vote: dto.vote,
+        vc_id_relawan: user.id.toString(),
+        vc_lat: dto.lat,
+        vc_long: dto.long,
+        vc_url: dto.image,
         created_at: now,
         updated_at: now,
       },
     });
-    return relawan;
-  }
-
-  async getJenisRelawan(user: users) {
-    const relawan = await this.prisma.relawans.findUnique({
-      where: {
-        nu_id: Number(user.id),
-      },
-    });
-
-    console.log(relawan);
-    const jenisRelawan: string[] = [];
-    switch (relawan.vc_jenis_relawan) {
-      case 'korkab':
-        jenisRelawan.push('korcam');
-        break;
-      case 'korcam':
-        jenisRelawan.push('kordes');
-        jenisRelawan.push('dtdc');
-        break;
-      case 'kordes':
-        jenisRelawan.push('dtdc');
-        break;
-    }
-
-    return jenisRelawan;
+    return serializeBigInt(voter);
   }
 }

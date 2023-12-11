@@ -4,6 +4,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { DptModule } from 'src/dpt/dpt.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { RelawanModule } from 'src/relawan/relawan.module';
+import { VoterModule } from 'src/voter/voter.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { RelawanModule } from 'src/relawan/relawan.module';
     AuthModule,
     DptModule,
     RelawanModule,
+    VoterModule,
   ],
 })
 export class AppModule {}

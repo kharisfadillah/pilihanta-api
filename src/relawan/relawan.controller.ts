@@ -25,7 +25,7 @@ export class RelawanController {
     return this.relawanService.createRelawan(user, dto);
   }
 
-  @Get()
+  @Get('jenis')
   @UseGuards(JwtGuard)
   getJenisRelawan(@GetUser() user: users) {
     return this.relawanService.getJenisRelawan(user);

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { serializeBigInt } from 'src/util/serialization.util';
 import { users } from '@prisma/client';
@@ -65,6 +65,18 @@ export class RelawanService {
 
   async createRelawan(user: users, dto: CreateRelawanDto) {
     const now = new Date();
+
+    const checkRelawan = await this.prisma.relawans.findFirst({
+      where: {
+        vc_nik: dto.nik,
+      },
+    });
+
+    if (checkRelawan) {
+      throw new UnprocessableEntityException(
+        `Relawan dengan nik ${dto.nik} sudah terdaftar`,
+      );
+    }
 
     const relawan = await this.prisma.relawans.create({
       data: {
