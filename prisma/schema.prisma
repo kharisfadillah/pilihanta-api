@@ -92,12 +92,6 @@ model mst_group {
   vc_group String? @db.VarChar(50)
 }
 
-model mst_group_relawan {
-  nu_id         Int     @id @default(autoincrement())
-  vc_kode_group String? @db.VarChar(50)
-  vc_nama_group String? @db.VarChar(50)
-}
-
 model mst_kab {
   nu_id             Int     @id @default(autoincrement())
   vc_id_kabupaten   String  @default("") @db.VarChar(50)
@@ -179,6 +173,22 @@ model personal_access_tokens {
   @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
 }
 
+model relawan_assign {
+  nu_id           Int       @id @default(autoincrement())
+  vc_id_rel       String?   @db.VarChar(50)
+  vc_id_ops       String?   @db.VarChar(50)
+  vc_id_provinsi  String?   @db.VarChar(50)
+  vc_id_kabupaten String?   @db.VarChar(50)
+  vc_id_kecamatan String?   @db.VarChar(50)
+  vc_id_desa      String?   @db.VarChar(50)
+  created_at      DateTime? @db.DateTime(0)
+  updated_at      DateTime? @db.DateTime(0)
+  created_by      String?   @db.VarChar(50)
+  vc_verify       String?   @db.VarChar(50)
+  vc_sts          String?   @db.VarChar(2)
+  nu_target       Int?
+}
+
 model relawans {
   nu_id            Int       @id @default(autoincrement())
   vc_nik           String?   @db.VarChar(20)
@@ -220,6 +230,7 @@ model users {
   created_at        DateTime? @db.Timestamp(0)
   updated_at        DateTime? @db.Timestamp(0)
   created_by        String?   @db.VarChar(50)
+  vc_group          String?   @db.VarChar(100)
 }
 
 model voters {
@@ -234,6 +245,8 @@ model voters {
   vc_url        String?   @db.VarChar(50)
   vc_lat        String?   @db.VarChar(100)
   vc_long       String?   @db.VarChar(100)
+  vc_group      String?   @db.VarChar(50)
+  created_by    String?   @db.VarChar(100)
 
   @@index([nu_id_dpt], map: "vc_id_dpt")
   @@index([vc_id_relawan], map: "vc_id_relawan")

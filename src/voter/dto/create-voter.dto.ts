@@ -4,8 +4,14 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateVoterDto {
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   idDpt: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty({
+    message: 'NIK tidak boleh kosong',
+  })
+  nik: string;
 
   @ApiProperty()
   @IsString()
