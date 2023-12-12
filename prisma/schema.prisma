@@ -60,11 +60,12 @@ model mst_dpt {
   vc_status       String?   @db.VarChar(1)
   updated_at      DateTime? @db.DateTime(0)
   created_at      DateTime? @db.DateTime(0)
+  voters          voters?
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model mst_dpt_sulsel {
-  nu_id_dpt       BigInt
+  nu_id_dpt       BigInt?
   vc_nik          String    @db.Text
   vc_nkk          String?   @db.Text
   vc_nama         String    @db.Text
@@ -154,68 +155,6 @@ model mst_tps {
   vc_rt         BigInt?
 }
 
-model new_mst_desaxx {
-  vc_id_desa          BigInt               @id
-  vc_nama_desa        String?              @db.Text
-  vc_id_kecamatan     BigInt?
-  vc_status           String?              @db.Text
-  jml_tps             BigInt?
-  dpt_l               BigInt?
-  dpt_p               BigInt?
-  vc_id_nik_desa      String?              @db.VarChar(4)
-  vc_lat              String?              @db.VarChar(255)
-  vc_long             String?              @db.VarChar(255)
-  new_mst_kecamatanxx new_mst_kecamatanxx? @relation(fields: [vc_id_kecamatan], references: [vc_id_kecamatan], onDelete: Restrict, onUpdate: Restrict, map: "FK_new_mst_desa_new_mst_kecamatan")
-
-  @@index([vc_id_kecamatan], map: "FK_new_mst_desa_new_mst_kecamatan")
-}
-
-model new_mst_kabupatenxx {
-  vc_id_kabupaten     BigInt                @id
-  vc_nama_kabupaten   String?               @db.Text
-  vc_id_provinsi      BigInt
-  vc_status           String?               @db.Text
-  vc_id_nik_kab       String?               @db.VarChar(2)
-  vc_tot_kec          String?               @db.VarChar(10)
-  vc_tot_des          String?               @db.VarChar(10)
-  vc_tot_tps          String?               @db.VarChar(10)
-  vc_id_zona          String?               @db.VarChar(50)
-  nu_dpt_l            Int?
-  nu_dpt_p            Int?
-  vc_korcam           String?               @db.VarChar(10)
-  vc_dtdc             String?               @db.VarChar(10)
-  new_mst_provinsixx  new_mst_provinsixx    @relation(fields: [vc_id_provinsi], references: [vc_id_provinsi], onUpdate: Restrict, map: "FK_new_mst_kabupaten_new_mst_provinsi")
-  new_mst_kecamatanxx new_mst_kecamatanxx[]
-
-  @@index([vc_id_provinsi], map: "FK_new_mst_kabupaten_new_mst_provinsi")
-}
-
-model new_mst_kecamatanxx {
-  vc_id_kecamatan     BigInt               @id
-  vc_nama_kecamatan   String?              @db.Text
-  vc_id_kabupaten     BigInt?
-  vc_status           String?              @db.Text
-  vc_id_nik_kec       String?              @db.Char(2)
-  vc_id_ops           String?              @db.VarChar(10)
-  vc_id_pec_kab       String?              @db.VarChar(10)
-  vc_tot_des          String?              @db.VarChar(10)
-  vc_tot_tps          String?              @db.VarChar(10)
-  vc_lat              String?              @db.VarChar(255)
-  vc_long             String?              @db.VarChar(255)
-  new_mst_desaxx      new_mst_desaxx[]
-  new_mst_kabupatenxx new_mst_kabupatenxx? @relation(fields: [vc_id_kabupaten], references: [vc_id_kabupaten], onDelete: Restrict, onUpdate: Restrict, map: "FK_new_mst_kecamatan_new_mst_kabupaten")
-
-  @@index([vc_id_kabupaten], map: "FK_new_mst_kecamatan_new_mst_kabupaten")
-}
-
-model new_mst_provinsixx {
-  vc_id_provinsi      BigInt                @id
-  vc_nama_provinsi    String?               @db.Text
-  vc_status           String?               @db.Text
-  vc_id_nik_prov      String?               @db.VarChar(2)
-  new_mst_kabupatenxx new_mst_kabupatenxx[]
-}
-
 model password_reset_tokens {
   email      String    @id @db.VarChar(255)
   token      String    @db.VarChar(255)
@@ -301,7 +240,7 @@ model users {
 
 model voters {
   nu_id         BigInt    @id @default(autoincrement())
-  nu_id_dpt     BigInt?
+  nu_id_dpt     BigInt?   @unique
   vc_no_hp      String?   @db.VarChar(100)
   vc_nik        String?   @db.VarChar(100)
   vc_vote       String?   @db.VarChar(100)
@@ -313,6 +252,9 @@ model voters {
   vc_long       String?   @db.VarChar(100)
   vc_group      String?   @db.VarChar(50)
   created_by    String?   @db.VarChar(100)
+  vc_rt         String?   @db.VarChar(50)
+
+  dpt mst_dpt? @relation(fields: [nu_id_dpt], references: [nu_id_dpt], map: "vc_id_dpt")
 
   @@index([nu_id_dpt], map: "vc_id_dpt")
   @@index([vc_id_relawan], map: "vc_id_relawan")

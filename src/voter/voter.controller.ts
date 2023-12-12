@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Post,
   Query,
   UploadedFile,
@@ -17,6 +19,7 @@ import { ApiConsumes } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { validate } from 'class-validator';
 
 @Controller('voter')
 export class VoterController {
@@ -46,12 +49,24 @@ export class VoterController {
       }),
     }),
   )
-  createVoter(
+  async createVoter(
     @GetUser() user: users,
     @Body() dto: CreateVoterDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
     dto.image = image.filename;
+    // const errors = await validate(dto);
+
+    // if (errors.length > 0) {
+    //   // Jika terdapat kesalahan validasi, lempar pengecualian
+    //   const message = errors
+    //     .map((error) => Object.values(error.constraints))
+    //     .join('-');
+    //   throw new HttpException(
+    //     { message, error: 'Bad Request' },
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
     return this.voterService.createVoter(user, dto);
   }
 }

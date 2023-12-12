@@ -1,4 +1,11 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { DptService } from './dpt.service';
 import { JwtGuard } from 'src/auth/guard';
 
@@ -17,10 +24,10 @@ export class DptController {
     return this.dptService.getDpts(desa, rt, query, cursor);
   }
 
-  //   @Get(':id')
-  //   getProvinceById(@Param('id', ParseIntPipe) provinceId: number) {
-  //     return this.provinceService.getProvinceById(provinceId)
-  //   }
+  @Get('by-nik/:nik')
+  getDptByNik(@Param('nik', ParseIntPipe) nik: string) {
+    return this.dptService.getDptByNik(nik);
+  }
 
   //   @Post()
   //   createProvince(@GetUser('id') createdId: number, @Body() dto: CreateProvinceDto) {

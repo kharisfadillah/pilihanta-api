@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { serializeBigInt } from 'src/util/serialization.util';
 import { mst_dpt, users } from '@prisma/client';
 import { CreateVoterDto } from './dto/create-voter.dto';
+import { ValidationError } from 'class-validator';
 
 @Injectable()
 export class VoterService {
@@ -44,6 +45,9 @@ export class VoterService {
         orderBy: {
           nu_id: 'asc',
         },
+        include: {
+          dpt: true,
+        },
       }),
       this.prisma.voters.count({
         where: {
@@ -75,7 +79,7 @@ export class VoterService {
           };
         } else {
           whereCondition = {
-            vc_nik: Number(dto.nik),
+            vc_nik: dto.nik,
           };
         }
         const checkVoter = await prisma.voters.findFirst({
@@ -87,9 +91,9 @@ export class VoterService {
           if (
             user.vc_group.toLowerCase() == checkVoter.vc_group.toLowerCase()
           ) {
-            throw new ConflictException(
+            throw new ConflictException([
               `Voter dengan NIK ${checkVoter.vc_nik} sudah terdaftar`,
-            );
+            ]);
           }
         }
 
@@ -111,6 +115,7 @@ export class VoterService {
               vc_id_desa: dto.idDesa,
               vc_rt: dto.rt,
               vc_no_hp: dto.noHP,
+              vc_recruit_by: user.id.toString(),
               created_at: now,
               updated_at: now,
             },
@@ -127,7 +132,9 @@ export class VoterService {
             vc_lat: dto.lat,
             vc_long: dto.long,
             vc_url: dto.image,
+            vc_rt: dto.rt,
             vc_group: user.vc_group,
+            created_by: user.id.toString(),
             created_at: now,
             updated_at: now,
           },
@@ -138,7 +145,7 @@ export class VoterService {
 
       return result;
     } catch (error) {
-      // Handle errors or rethrow
+      console.log(error);
       throw error;
     } finally {
       // Disconnect from Prisma after the transaction

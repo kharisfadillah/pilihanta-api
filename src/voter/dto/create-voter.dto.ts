@@ -4,6 +4,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateVoterDto {
   @ApiProperty()
   @IsString()
+  @IsOptional()
   idDpt: string;
 
   @ApiProperty()
@@ -57,10 +58,12 @@ export class CreateVoterDto {
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   lat: string;
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   long: string;
 
   @IsString()
