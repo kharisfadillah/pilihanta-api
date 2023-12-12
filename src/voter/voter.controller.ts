@@ -32,7 +32,7 @@ export class VoterController {
     return this.voterService.getVoters(user, query, cursor);
   }
 
-  @Post('by-dpt')
+  @Post()
   @UseGuards(JwtGuard)
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
@@ -46,12 +46,12 @@ export class VoterController {
       }),
     }),
   )
-  createVoterByDpt(
+  createVoter(
     @GetUser() user: users,
     @Body() dto: CreateVoterDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
     dto.image = image.filename;
-    return this.voterService.createVoterByDpt(user, dto);
+    return this.voterService.createVoter(user, dto);
   }
 }

@@ -1,8 +1,13 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { serializeBigInt } from 'src/util/serialization.util';
 import { users } from '@prisma/client';
 import { CreateRelawanDto } from './dto/create-relawan.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class RelawanService {
@@ -73,7 +78,7 @@ export class RelawanService {
     });
 
     if (checkRelawan) {
-      throw new UnprocessableEntityException(
+      throw new ConflictException(
         `Relawan dengan nik ${dto.nik} sudah terdaftar`,
       );
     }
@@ -88,11 +93,46 @@ export class RelawanService {
         vc_bank: dto.bank,
         vc_atas_nama: dto.atasNama,
         vc_jenis_relawan: dto.jenisRelawan,
+        vc_id_provinsi: dto.idProvinsi,
+        vc_id_kabupaten: dto.idKabupaten,
+        vc_id_kecamatan: dto.idKecamatan,
+        vc_id_desa: dto.idDesa,
+        vc_rt: dto.rt,
         created_by: user.id.toString(),
         created_at: now,
         updated_at: now,
       },
     });
+
+    await this.prisma.relawan_assign.create({
+      data: {
+        vc_id_rel: relawan.nu_id.toString(),
+        vc_id_provinsi: dto.penempatanProvinsi,
+        vc_id_kabupaten: dto.penempatanKabupaten,
+        vc_id_kecamatan: dto.penempatanKecamatan,
+        vc_id_desa: dto.penempatanDesa,
+        nu_target: dto.target,
+        created_by: user.id.toString(),
+        created_at: now,
+        updated_at: now,
+      },
+    });
+
+    await this.prisma.users.create({
+      data: {
+        username: dto.username,
+        name: dto.nama,
+        role: 'relawan',
+        password: bcrypt.hashSync('123456', 10),
+        created_at: now,
+        updated_at: now,
+        vc_group: user.vc_group,
+        vc_id_rel: relawan.nu_id.toString(),
+        created_by: user.id.toString(),
+        vc_provinsi: Number(dto.idProvinsi),
+      },
+    });
+
     return relawan;
   }
 

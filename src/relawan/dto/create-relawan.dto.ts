@@ -20,6 +20,13 @@ export class CreateRelawanDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty({
+    message: 'Username tidak boleh kosong',
+  })
+  username: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty({
     message: 'Alamat tidak boleh kosong',
   })
   alamat: string;
@@ -58,4 +65,44 @@ export class CreateRelawanDto {
     message: 'Jenis Relawan tidak boleh kosong',
   })
   jenisRelawan: string;
+
+  @ApiProperty()
+  @IsString()
+  idProvinsi: string;
+
+  @ApiProperty()
+  @IsString()
+  idKabupaten: string;
+
+  @ApiProperty()
+  @IsString()
+  idKecamatan: string;
+
+  @ApiProperty()
+  @IsString()
+  idDesa: string;
+
+  @ApiProperty()
+  @IsString()
+  rt: string;
+
+  @ApiProperty()
+  @IsString()
+  penempatanProvinsi: string;
+
+  @ApiProperty()
+  @IsString()
+  penempatanKabupaten: string;
+
+  @ApiProperty()
+  @IsString()
+  penempatanKecamatan: string;
+
+  @ApiProperty()
+  @IsString()
+  penempatanDesa: string;
+
+  @ApiProperty()
+  @IsString()
+  target: number;
 }

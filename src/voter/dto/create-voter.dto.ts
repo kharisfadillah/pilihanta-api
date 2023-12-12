@@ -15,6 +15,34 @@ export class CreateVoterDto {
 
   @ApiProperty()
   @IsString()
+  nama: string;
+
+  @ApiProperty()
+  @IsString()
+  alamat: string;
+
+  @ApiProperty()
+  @IsString()
+  idProvinsi: string;
+
+  @ApiProperty()
+  @IsString()
+  idKabupaten: string;
+
+  @ApiProperty()
+  @IsString()
+  idKecamatan: string;
+
+  @ApiProperty()
+  @IsString()
+  idDesa: string;
+
+  @ApiProperty()
+  @IsString()
+  rt: string;
+
+  @ApiProperty()
+  @IsString()
   @IsNotEmpty({
     message: 'No HP tidak boleh kosong',
   })
