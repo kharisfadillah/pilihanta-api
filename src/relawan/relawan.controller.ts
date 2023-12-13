@@ -30,4 +30,16 @@ export class RelawanController {
   getJenisRelawan(@GetUser() user: users) {
     return this.relawanService.getJenisRelawan(user);
   }
+
+  @Get('check-user-name')
+  @UseGuards(JwtGuard)
+  checkUsername(@Query('username') username: string) {
+    return this.relawanService.checkUsername(username);
+  }
+
+  @Get('sarankan-user-name')
+  @UseGuards(JwtGuard)
+  sarankanUsername(@Query('name') name: string) {
+    return this.relawanService.sarankanUsername(name);
+  }
 }

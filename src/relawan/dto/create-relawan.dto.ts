@@ -62,9 +62,9 @@ export class CreateRelawanDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty({
-    message: 'Jenis Relawan tidak boleh kosong',
+    message: 'Tingkat Relawan tidak boleh kosong',
   })
-  jenisRelawan: string;
+  tingkatRelawan: string;
 
   @ApiProperty()
   @IsString()

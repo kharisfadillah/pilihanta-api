@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -88,16 +89,16 @@ export class RelawanService {
         vc_nik: dto.nik,
         vc_nama: dto.nama,
         vc_alamat: dto.alamat,
-        vc_no_hp: dto.noHP,
-        vc_no_rek: dto.noRekening,
-        vc_bank: dto.bank,
-        vc_atas_nama: dto.atasNama,
-        vc_jenis_relawan: dto.jenisRelawan,
         vc_id_provinsi: dto.idProvinsi,
         vc_id_kabupaten: dto.idKabupaten,
         vc_id_kecamatan: dto.idKecamatan,
         vc_id_desa: dto.idDesa,
         vc_rt: dto.rt,
+        vc_no_hp: dto.noHP,
+        vc_no_rek: dto.noRekening,
+        vc_bank: dto.bank,
+        vc_atas_nama: dto.atasNama,
+        vc_jenis_relawan: dto.tingkatRelawan,
         created_by: user.id.toString(),
         created_at: now,
         updated_at: now,
@@ -137,11 +138,16 @@ export class RelawanService {
   }
 
   async getJenisRelawan(user: users) {
+    console.log(user);
     const relawan = await this.prisma.relawans.findUnique({
       where: {
-        nu_id: Number(user.id),
+        nu_id: Number(user.vc_id_rel),
       },
     });
+
+    if (!relawan) {
+      throw new ForbiddenException('Pengguna tidak terdaftar sebagai relawan');
+    }
 
     console.log(relawan);
     const jenisRelawan: string[] = [];
@@ -159,5 +165,71 @@ export class RelawanService {
     }
 
     return jenisRelawan;
+  }
+
+  async checkUsername(username: string) {
+    const user = await this.prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+
+    if (user) {
+      throw new ConflictException('Nama pengguna tidak tersedia');
+    } else {
+      return {
+        message: 'ok',
+      };
+    }
+  }
+
+  async sarankanUsername(name: string) {
+    let randomNum = Math.floor(Math.random() * 1000);
+    let username = `${name.replace(/\s/g, '').toLowerCase()}`;
+    let user = await this.prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    if (user) {
+      username = `${name.replace(/\s/g, '').toLowerCase()}${randomNum}`;
+    }
+    user = await this.prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    if (user) {
+      randomNum = Math.floor(Math.random() * 1000);
+      username = `${name.replace(/\s/g, '').toLowerCase()}${randomNum}`;
+    }
+    user = await this.prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    if (user) {
+      randomNum = Math.floor(Math.random() * 1000);
+      username = `${name.replace(/\s/g, '').toLowerCase()}${randomNum}`;
+    }
+    user = await this.prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    if (user) {
+      randomNum = Math.floor(Math.random() * 1000);
+      username = `${name.replace(/\s/g, '').toLowerCase()}${randomNum}`;
+    }
+    user = await this.prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+    if (user) {
+      randomNum = Math.floor(Math.random() * 1000);
+      username = `${name.replace(/\s/g, '').toLowerCase()}${randomNum}`;
+    }
+    return username;
   }
 }
