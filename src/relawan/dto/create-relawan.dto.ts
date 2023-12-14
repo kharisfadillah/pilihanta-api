@@ -61,13 +61,6 @@ export class CreateRelawanDto {
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty({
-    message: 'Tingkat Relawan tidak boleh kosong',
-  })
-  tingkatRelawan: string;
-
-  @ApiProperty()
-  @IsString()
   idProvinsi: string;
 
   @ApiProperty()
@@ -86,23 +79,34 @@ export class CreateRelawanDto {
   @IsString()
   rt: string;
 
-  @ApiProperty()
-  @IsString()
-  penempatanProvinsi: string;
+  //   @ApiProperty()
+  //   @IsString()
+  //   penempatanProvinsi: string;
+
+  //   @ApiProperty()
+  //   @IsString()
+  //   penempatanKabupaten: string;
+
+  //   @ApiProperty()
+  //   @IsString()
+  //   penempatanKecamatan: string;
+
+  //   @ApiProperty()
+  //   @IsString()
+  //   penempatanDesa: string;
 
   @ApiProperty()
   @IsString()
-  penempatanKabupaten: string;
+  @IsNotEmpty({
+    message: 'Tingkat Relawan tidak boleh kosong',
+  })
+  tingkatRelawan: string;
 
   @ApiProperty()
   @IsString()
-  penempatanKecamatan: string;
+  penempatan: string;
 
   @ApiProperty()
   @IsString()
-  penempatanDesa: string;
-
-  @ApiProperty()
-  @IsString()
-  target: number;
+  target: string;
 }

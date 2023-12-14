@@ -4,6 +4,7 @@ import { RelawanService } from './relawan.service';
 import { GetUser } from 'src/auth/decorator';
 import { users } from '@prisma/client';
 import { CreateRelawanDto } from './dto';
+import { ApiConsumes } from '@nestjs/swagger';
 
 @Controller('relawan')
 export class RelawanController {
@@ -21,6 +22,7 @@ export class RelawanController {
 
   @Post()
   @UseGuards(JwtGuard)
+  @ApiConsumes('multipart/form-data')
   createRelawans(@GetUser() user: users, @Body() dto: CreateRelawanDto) {
     return this.relawanService.createRelawan(user, dto);
   }

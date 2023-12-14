@@ -70,6 +70,7 @@ export class RelawanService {
   }
 
   async createRelawan(user: users, dto: CreateRelawanDto) {
+    console.log('relawan-dto', dto);
     const now = new Date();
 
     const checkRelawan = await this.prisma.relawans.findFirst({
@@ -82,6 +83,16 @@ export class RelawanService {
       throw new ConflictException(
         `Relawan dengan nik ${dto.nik} sudah terdaftar`,
       );
+    }
+
+    const checkUser = await this.prisma.users.findFirst({
+      where: {
+        username: dto.username,
+      },
+    });
+
+    if (checkUser) {
+      throw new ForbiddenException(`Username sudah dipakai`);
     }
 
     const relawan = await this.prisma.relawans.create({
@@ -105,19 +116,115 @@ export class RelawanService {
       },
     });
 
-    await this.prisma.relawan_assign.create({
-      data: {
-        vc_id_rel: relawan.nu_id.toString(),
-        vc_id_provinsi: dto.penempatanProvinsi,
-        vc_id_kabupaten: dto.penempatanKabupaten,
-        vc_id_kecamatan: dto.penempatanKecamatan,
-        vc_id_desa: dto.penempatanDesa,
-        nu_target: dto.target,
-        created_by: user.id.toString(),
-        created_at: now,
-        updated_at: now,
-      },
-    });
+    let data: any;
+    switch (dto.tingkatRelawan) {
+      case 'korkab': {
+        const kab = await this.prisma.mst_kab.findFirst({
+          where: {
+            vc_id_kabupaten: dto.penempatan,
+          },
+        });
+        await this.prisma.relawan_assign.create({
+          data: {
+            vc_id_rel: relawan.nu_id.toString(),
+            vc_id_provinsi: kab.vc_id_provinsi.toString(),
+            vc_id_kabupaten: dto.penempatan,
+            nu_target: Number(dto.target),
+            created_by: user.id.toString(),
+            created_at: now,
+            updated_at: now,
+          },
+        });
+        break;
+      }
+      case 'korcam': {
+        const kec = await this.prisma.mst_kec.findFirst({
+          where: {
+            vc_id_kecamatan: dto.penempatan,
+          },
+        });
+        const kab = await this.prisma.mst_kab.findFirst({
+          where: {
+            vc_id_kabupaten: kec.vc_id_kabupaten.toString(),
+          },
+        });
+        await this.prisma.relawan_assign.create({
+          data: {
+            vc_id_rel: relawan.nu_id.toString(),
+            vc_id_provinsi: kab.vc_id_provinsi.toString(),
+            vc_id_kabupaten: kec.vc_id_kabupaten.toString(),
+            vc_id_kecamatan: dto.penempatan,
+            nu_target: Number(dto.target),
+            created_by: user.id.toString(),
+            created_at: now,
+            updated_at: now,
+          },
+        });
+        break;
+      }
+      case 'kordes': {
+        const desa = await this.prisma.mst_desa.findFirst({
+          where: {
+            vc_id_desa: dto.penempatan,
+          },
+        });
+        const kec = await this.prisma.mst_kec.findFirst({
+          where: {
+            vc_id_kecamatan: desa.vc_id_kecamatan.toString(),
+          },
+        });
+        const kab = await this.prisma.mst_kab.findFirst({
+          where: {
+            vc_id_kabupaten: kec.vc_id_kabupaten.toString(),
+          },
+        });
+        await this.prisma.relawan_assign.create({
+          data: {
+            vc_id_rel: relawan.nu_id.toString(),
+            vc_id_provinsi: kab.vc_id_provinsi.toString(),
+            vc_id_kabupaten: kec.vc_id_kabupaten.toString(),
+            vc_id_kecamatan: desa.vc_id_kecamatan.toString(),
+            vc_id_desa: dto.penempatan,
+            nu_target: Number(dto.target),
+            created_by: user.id.toString(),
+            created_at: now,
+            updated_at: now,
+          },
+        });
+        break;
+      }
+      case 'dtdc': {
+        const desa = await this.prisma.mst_desa.findFirst({
+          where: {
+            vc_id_desa: dto.penempatan,
+          },
+        });
+        const kec = await this.prisma.mst_kec.findFirst({
+          where: {
+            vc_id_kecamatan: desa.vc_id_kecamatan.toString(),
+          },
+        });
+        const kab = await this.prisma.mst_kab.findFirst({
+          where: {
+            vc_id_kabupaten: kec.vc_id_kabupaten.toString(),
+          },
+        });
+        await this.prisma.relawan_assign.create({
+          data: {
+            vc_id_rel: relawan.nu_id.toString(),
+            vc_id_provinsi: kab.vc_id_provinsi.toString(),
+            vc_id_kabupaten: kec.vc_id_kabupaten.toString(),
+            vc_id_kecamatan: desa.vc_id_kecamatan.toString(),
+            vc_id_desa: dto.penempatan,
+            nu_target: Number(dto.target),
+            created_by: user.id.toString(),
+            created_at: now,
+            updated_at: now,
+          },
+        });
+        break;
+      }
+    }
 
     await this.prisma.users.create({
       data: {
